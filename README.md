@@ -158,7 +158,27 @@ app is fully demoable and testable without network access or an API key.
 See `AI_LOG.md` for the prompts used, what was accepted from the AI's
 suggestions, and what was changed/corrected and why.
 
-## 14. Production Improvements (not implemented here, out of scope for
+## 14. Troubleshooting (Windows)
+Two environment issues came up during local setup that are worth
+documenting rather than treating as unexplained failures:
+
+- **`pip install` fails building `pydantic-core`, mentioning an
+  "Application Control policy" or a compiler error.** This happens on
+  very new Python versions (e.g. 3.14) that don't yet have prebuilt
+  wheels for some dependencies, forcing a source build that can get
+  blocked by Windows security policies. Fix: install Python 3.12
+  alongside your existing version, then create the virtual environment
+  with `py -3.12 -m venv venv` instead of the default `python -m venv
+  venv`.
+- **`npm run dev` crashes with `ERR_DLOPEN_FAILED` referencing a Rollup
+  `.node` file.** A known npm bug where the platform-specific native
+  binary for Rollup doesn't install correctly. Fix:
+  ```bash
+  rm -rf node_modules package-lock.json
+  npm install
+  ```
+
+## 15. Production Improvements (not implemented here, out of scope for
 this timed test)
 - Per-session state (session ID / auth) instead of a single global
   in-memory state, backed by a real database (e.g. Postgres or Redis).

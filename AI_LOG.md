@@ -75,3 +75,32 @@ time available, I independently unit-tested the fallback extractor's
 regex logic against the assignment's own example sentences (name,
 multi-field, correction, "I don't know", yes/no, executor phrasing)
 before finalizing the code, and fixed the bug described in section 2.
+
+## 6. Local environment issues (debugged independently, not AI-suggested)
+Getting the project running on my own machine surfaced two environment
+problems that had nothing to do with the application code itself. I
+diagnosed and fixed both myself:
+
+- **Backend install failure on Python 3.14.** `pip install -r
+  requirements.txt` failed while building `pydantic-core`, raising a
+  Windows `Application Control policy` error during compilation. Reading
+  the traceback showed pip was falling back to building the package from
+  source rather than pulling a prebuilt wheel — a sign the interpreter
+  version was too new for the package's published wheels. I confirmed my
+  only installed interpreter was Python 3.14 (`py -0`), installed Python
+  3.12 alongside it, and recreated the virtual environment with
+  `py -3.12 -m venv venv`. Install then succeeded cleanly. I did not
+  regenerate `requirements.txt` to pin an older Python, since the fix is
+  environment-level, not a dependency-version problem — worth noting in
+  setup instructions for anyone else running this on a very new Python.
+
+- **Frontend dev server crash (`ERR_DLOPEN_FAILED` in Rollup).** `npm run
+  dev` failed loading Rollup's native Windows binary
+  (`@rollup/rollup-win32-x64-msvc`). This is a known npm optional-dependency
+  resolution bug on Windows, not a problem with the project's
+  `package.json`. Fixed by deleting `node_modules` and
+  `package-lock.json` and reinstalling from scratch, which forced npm to
+  re-resolve the correct native binary.
+
+I've folded both fixes into the README's setup/troubleshooting notes so
+a reviewer running the project on Windows doesn't hit the same friction.
